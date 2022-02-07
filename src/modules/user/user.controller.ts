@@ -52,5 +52,11 @@ export class UserController {
         return HttpStatus.OK
     }
 
+    @Post('setRole/:userId/:roleId')
+    async setRoleToUse(@Param('userId') userId: string, @Param('roleId') roleId: string) {
+        await this._userService.setRoleToUse(parseInt(userId), parseInt(roleId))
+        return HttpStatus.OK
+    }
+
 
 }

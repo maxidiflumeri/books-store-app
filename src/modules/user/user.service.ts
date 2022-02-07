@@ -1,18 +1,20 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserDto } from './dto/user.dto';
 import { User } from './user.entity';
 import { UserDetails } from './user.details.entity';
 import { getConnection } from 'typeorm';
 import { Role } from '../role/role.entity';
 import { Status } from 'src/shared/status.enum';
+import { RoleRepository } from '../role/role.repository';
 
 @Injectable()
 export class UserService {
     constructor(
         @InjectRepository(UserRepository)
-        private readonly _userRepository: UserRepository        
+        private readonly _userRepository: UserRepository,
+        @InjectRepository(RoleRepository)
+        private readonly _roleRepository: RoleRepository
     ) { }
 
     async get(id: number): Promise<User> {
@@ -39,7 +41,7 @@ export class UserService {
         const details = new UserDetails()
         user.details = details
         const repo = getConnection().getRepository(Role)
-        const defaultRole = await repo.findOne({where: {name: 'GENERAL'}})
+        const defaultRole = await repo.findOne({ where: { name: 'GENERAL' } })
         user.roles = [defaultRole]
         const savedUser: User = await this._userRepository.save(user)
 
@@ -92,7 +94,7 @@ export class UserService {
         if (!id) {
             throw new BadRequestException('Id must be send.')
         }
-        
+
         const userExist: User = await this._userRepository.findOne(id)
 
         if (!userExist) {
@@ -102,6 +104,36 @@ export class UserService {
         await this._userRepository.update(id, { status: Status.ACTIVE })
     }
 
+    async setRoleToUse(userId: number, roleId: number) {
+        if (!userId) {
+            throw new BadRequestException('User id must be send.')
+        }
 
+        if (!roleId) {
+            throw new BadRequestException('Role id must be send.')
+        }
+
+        const userExist: User = await this._userRepository.findOne(userId, { where: { status: Status.ACTIVE } })
+
+        if (!userExist) {
+            throw new NotFoundException('User does not exists.')
+        }
+
+        const roleExist: Role = await this._roleRepository.findOne(roleId, { where: { status: Status.ACTIVE } })
+
+        if (!roleExist) {
+            throw new NotFoundException('Role does not exists.')
+        }
+
+        userExist.roles.forEach(rol => {
+            if (rol.id == roleExist.id) {
+                throw new ConflictException('Role already exists in this user')
+            }
+        })
+
+        userExist.roles.push(roleExist)
+        await this._userRepository.save(userExist)
+
+    }
 
 }
