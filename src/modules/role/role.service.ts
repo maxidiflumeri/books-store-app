@@ -2,15 +2,13 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { RoleRepository } from './role.repository';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Role } from './role.entity';
-import { MapperService } from '../../shared/mapper.service';
-import { Status } from 'src/shared/status.enum';
+import { Status } from '../../shared/status.enum';
 
 @Injectable()
 export class RoleService {
     constructor(
         @InjectRepository(RoleRepository)
-        private readonly _roleRepository: RoleRepository,
-        private readonly _mapperService: MapperService
+        private readonly _roleRepository: RoleRepository        
     ) { }
 
     async get(id: number): Promise<Role> {

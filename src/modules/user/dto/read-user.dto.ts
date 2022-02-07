@@ -1,17 +1,23 @@
+import { Exclude, Expose } from "class-transformer";
 import { IsNotEmpty } from "class-validator";
 import { RoleType } from "src/modules/role/roleType.enum";
 import { UserDetails } from "../user.details.entity";
 
-export class UserDto {
-    @IsNotEmpty()    
+@Exclude()
+export class ReadUserDto {
+    @Expose()
+    @IsNotEmpty()
     id: number
 
+    @Expose()
     @IsNotEmpty()
     email: string
 
-    @IsNotEmpty()
-    roles: RoleType[]
-
+    @Expose()
     @IsNotEmpty()
     details: UserDetails
+
+    @Expose()
+    @IsNotEmpty()
+    roles: RoleType[]
 }

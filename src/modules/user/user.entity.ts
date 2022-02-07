@@ -1,3 +1,4 @@
+import { Status } from '../../shared/status.enum'
 import { BaseEntity, BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, JoinTable, ManyToMany, OneToOne, PrimaryGeneratedColumn } from 'typeorm'
 import { Role } from '../role/role.entity'
 import { UserDetails } from './user.details.entity'
@@ -22,7 +23,7 @@ export class User extends BaseEntity {
     @JoinTable({ name: 'user_roles' })
     roles: Role[]
 
-    @Column({ type: 'varchar', default: 'ACTIVE', length: 8, nullable: false })
+    @Column({ type: 'varchar', default: Status.ACTIVE, length: 8, nullable: false })
     status: string
 
     @Column({ type: 'timestamp', name: 'created_at' })

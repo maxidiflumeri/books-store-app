@@ -5,8 +5,9 @@ import { User } from './user.entity';
 import { UserDetails } from './user.details.entity';
 import { getConnection } from 'typeorm';
 import { Role } from '../role/role.entity';
-import { Status } from 'src/shared/status.enum';
+import { Status } from '../../shared/status.enum';
 import { RoleRepository } from '../role/role.repository';
+import { UserDetailsRepository } from './user-details.repository';
 
 @Injectable()
 export class UserService {
@@ -14,7 +15,9 @@ export class UserService {
         @InjectRepository(UserRepository)
         private readonly _userRepository: UserRepository,
         @InjectRepository(RoleRepository)
-        private readonly _roleRepository: RoleRepository
+        private readonly _roleRepository: RoleRepository,
+        @InjectRepository(UserDetailsRepository)
+        private readonly _userDetailsRepository: UserDetailsRepository
     ) { }
 
     async get(id: number): Promise<User> {
@@ -44,6 +47,19 @@ export class UserService {
         const defaultRole = await repo.findOne({ where: { name: 'GENERAL' } })
         user.roles = [defaultRole]
         const savedUser: User = await this._userRepository.save(user)
+
+        return user
+    }
+
+    async createDetailsUser(userDetails: UserDetails): Promise<User> {
+        const user: User = await this._userRepository.findOne(userDetails.id)
+
+        if (!user) {
+            throw new NotFoundException('User does not exists.')
+        }            
+        
+        user.details = userDetails
+        await this._userDetailsRepository.update(userDetails.id, userDetails)
 
         return user
     }

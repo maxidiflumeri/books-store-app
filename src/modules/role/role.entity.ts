@@ -1,4 +1,5 @@
-import { BaseEntity, BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Status } from "../../shared/status.enum";
+import { BaseEntity, BeforeInsert, BeforeUpdate, Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "../user/user.entity";
 
 @Entity('roles')
@@ -13,11 +14,10 @@ export class Role extends BaseEntity {
     @Column({ type: 'varchar', nullable: false })
     description: string
 
-    @ManyToMany(type => User, user => user.roles)
-    @JoinColumn()
+    @ManyToMany(type => User, user => user.roles)    
     users: User[]
 
-    @Column({ type: 'varchar', default: 'ACTIVE', length: 8, nullable: false })
+    @Column({ type: 'varchar', default: Status.ACTIVE, length: 8, nullable: false })
     status: string
 
     @Column({ type: 'timestamp', name: 'created_at' })
