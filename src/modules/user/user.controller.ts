@@ -39,5 +39,11 @@ export class UserController {
         return HttpStatus.OK
     }
 
+    @Put(':id')
+    async active(@Param('id') id: string) {
+        await this._userService.active(parseInt(id))
+        return HttpStatus.OK
+    }
+
 
 }

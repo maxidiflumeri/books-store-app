@@ -1,4 +1,4 @@
-import { BaseEntity, Column, CreateDateColumn, Entity, JoinColumn, ManyToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { BaseEntity, BeforeInsert, BeforeUpdate, Column, Entity, JoinColumn, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "../user/user.entity";
 
 @Entity('roles')
@@ -16,13 +16,23 @@ export class Role extends BaseEntity {
     @ManyToMany(type => User, user => user.roles)
     @JoinColumn()
     users: User[]
-    
+
     @Column({ type: 'varchar', default: 'ACTIVE', length: 8, nullable: false })
-    status: string   
+    status: string
 
-    @Column({type: 'timestamp', name: 'created_at'})
-    createdAt: Date
+    @Column({ type: 'timestamp', name: 'created_at' })
+    updatedAt: number
 
-    @Column({type: 'timestamp', name: 'updated_at'})
-    updatedAt: Date
+    @Column({ type: 'timestamp', name: 'updated_at' })
+    createdAt: number
+
+    @BeforeUpdate()
+    public setUpdatedAt() {
+        this.updatedAt = Math.floor(Date.now() / 1000);
+    }
+
+    @BeforeInsert()
+    public setCreatedAt() {
+        this.createdAt = Math.floor(Date.now() / 1000);
+    }
 }

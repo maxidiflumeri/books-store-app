@@ -7,6 +7,7 @@ import { MapperService } from '../../shared/mapper.service';
 import { UserDetails } from './user.details.entity';
 import { getConnection } from 'typeorm';
 import { Role } from '../role/role.entity';
+import { Status } from 'src/shared/status.enum';
 
 @Injectable()
 export class UserService {
@@ -21,7 +22,7 @@ export class UserService {
             throw new BadRequestException('Id must be send.')
         }
 
-        const user: User = await this._userRepository.findOne(id, { where: { status: 'ACTIVE' } })
+        const user: User = await this._userRepository.findOne(id, { where: { status: Status.ACTIVE } })
 
         if (!user) {
             throw new NotFoundException('User does not exists.')
@@ -31,7 +32,7 @@ export class UserService {
     }
 
     async getAll(): Promise<UserDto[]> {
-        const users: User[] = await this._userRepository.find({ where: { status: 'ACTIVE' } })
+        const users: User[] = await this._userRepository.find({ where: { status: Status.ACTIVE } })
 
         return this._mapperService.mapCollection<User, UserDto>(users, new UserDto())
     }
@@ -52,7 +53,7 @@ export class UserService {
             throw new BadRequestException('Id must be send.')
         }
 
-        const userExist: User = await this._userRepository.findOne(id, { where: { status: 'ACTIVE' } })
+        const userExist: User = await this._userRepository.findOne(id, { where: { status: Status.ACTIVE } })
 
         if (!userExist) {
             throw new NotFoundException('User does not exists.')
@@ -66,13 +67,27 @@ export class UserService {
             throw new BadRequestException('Id must be send.')
         }
 
-        const userExist: User = await this._userRepository.findOne(id, { where: { status: 'ACTIVE' } })
+        const userExist: User = await this._userRepository.findOne(id, { where: { status: Status.ACTIVE } })
 
         if (!userExist) {
             throw new NotFoundException('User does not exists.')
         }
 
-        await this._userRepository.update(id, { status: 'INACTIVE' })
+        await this._userRepository.update(id, { status: Status.INACTIVE })
+    }
+
+    async active(id: number): Promise<void> {
+        if (!id) {
+            throw new BadRequestException('Id must be send.')
+        }
+        
+        const userExist: User = await this._userRepository.findOne(id)
+
+        if (!userExist) {
+            throw new NotFoundException('User does not exists.')
+        }
+
+        await this._userRepository.update(id, { status: Status.ACTIVE })
     }
 
 }
